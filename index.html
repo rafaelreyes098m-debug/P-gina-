@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIP Link Studio — Acceso Protegido</title>
+  <style>
+    :root {
+      --gold-1: #fff3b0;
+      --gold-2: #f5c84c;
+      --gold-3: #b88218;
+      --bg-dark: #07090f;
+      --card-bg: rgba(16, 20, 32, 0.88);
+      --border-glow: rgba(245, 200, 76, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 18% 15%, rgba(245, 200, 76, 0.18), transparent 42%),
+        radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.16), transparent 45%),
+        radial-gradient(circle at 50% 50%, #111625 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      padding: 18px;
+      overflow-x: hidden;
+    }
+
+    .box {
+      position: relative;
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      padding: 24px;
+      border-radius: 20px;
+      border: 1px solid var(--border-glow);
+      box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.65),
+        0 0 35px rgba(245, 200, 76, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+      overflow: hidden;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(245, 200, 76, 0.2), rgba(255, 243, 176, 0.1));
+      border: 1px solid rgba(245, 200, 76, 0.45);
+      color: var(--gold-1);
+    }
+
+    .lock-btn {
+      font-size: 12px;
+      color: #fca5a5;
+      background: transparent;
+      border: 0;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, var(--gold-1) 45%, var(--gold-2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hint {
+      margin: 0 0 16px;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    label {
+      display: block;
+      font-size: 12.5px;
+      color: var(--gold-1);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="url"] {
+      width: 100%;
+      padding: 11px 13px;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(245, 200, 76, 0.28);
+      background: rgba(7, 10, 18, 0.85);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      margin-bottom: 16px;
+      padding: 11px;
+      background: rgba(7, 10, 18, 0.72);
+      border: 1px dashed rgba(245, 200, 76, 0.45);
+      border-radius: 12px;
+      color: #e2e8f0;
+      font-size: 13px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .btn-gold {
+      width: 100%;
+      padding: 13px 16px;
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--gold-1) 0%, var(--gold-2) 48%, var(--gold-3) 100%);
+      color: #120e04;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(245, 200, 76, 0.3);
+    }
+
+    .err {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(127, 29, 29, 0.75);
+      border: 1px solid rgba(248, 113, 113, 0.45);
+      color: #fecaca;
+      font-size: 13px;
+      display: none;
+    }
+
+    .msg-ok {
+      margin-top: 14px;
+      padding: 11px 13px;
+      border-radius: 12px;
+      background: rgba(6, 78, 59, 0.75);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: #a7f3d0;
+      font-size: 13px;
+      display: none;
+    }
+
+    .ok {
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgba(16, 185, 129, 0.14), rgba(245, 200, 76, 0.08));
+      border: 1px solid rgba(245, 200, 76, 0.45);
+      display: none;
+    }
+
+    .ok input {
+      margin: 8px 0 10px;
+      font-size: 13px;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-copy {
+      flex: 1;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #10b981, #047857);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .open-btn {
+      flex: 1;
+      display: block;
+      text-align: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .manage-box {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(245, 200, 76, 0.22);
+    }
+
+    .manage-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: var(--gold-1);
+      font-weight: 800;
+    }
+
+    .link-card {
+      background: rgba(7, 10, 18, 0.82);
+      border: 1px solid rgba(245, 200, 76, 0.25);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .link-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      word-break: break-all;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill-lock {
+      background: rgba(245, 200, 76, 0.22);
+      color: var(--gold-1);
+      border: 1px solid rgba(245, 200, 76, 0.45);
+    }
+
+    .pill-open {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .pill-ban {
+      background: rgba(239, 68, 68, 0.22);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    .link-url {
+      font-size: 12px;
+      color: #93c5fd;
+      margin: 6px 0 10px;
+      word-break: break-all;
+    }
+
+    .link-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .ctrl-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .ctrl-input {
+      flex: 1;
+      min-width: 130px;
+      padding: 8px 10px !important;
+      margin: 0 !important;
+      font-size: 12.5px !important;
+    }
+
+    .btn-sm {
+      padding: 8px 10px;
+      border-radius: 9px;
+      border: 0;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-save-key {
+      background: var(--gold-2);
+      color: #120e04;
+    }
+
+    .btn-toggle {
+      background: rgba(59, 130, 246, 0.25);
+      color: #bfdbfe;
+      border: 1px solid rgba(59, 130, 246, 0.45);
+    }
+
+    .btn-del {
+      background: rgba(239, 68, 68, 0.25);
+      color: #fecaca;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    #panelContent {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <!-- Pantalla de contraseña al entrar -->
+    <div id="loginView">
+      <div class="top-bar">
+        <span class="badge">Acceso Protegido</span>
+      </div>
+      <h2>Entrar al Panel</h2>
+      <p class="hint">Escribe la contraseña para desbloquear y administrar tus enlaces.</p>
+
+      <form id="loginForm">
+        <label for="passInput">Contraseña</label>
+        <input type="password" id="passInput" placeholder="Escribe tu contraseña" required autofocus>
+        <button type="submit" class="btn-gold">Entrar</button>
+      </form>
+
+      <div class="err" id="loginErr">Contraseña incorrecta. Intenta de nuevo.</div>
+    </div>
+
+    <!-- Panel principal (se muestra tras ingresar la contraseña) -->
+    <div id="panelContent">
+      <div class="top-bar">
+        <span class="badge">VIP Link Studio</span>
+        <button type="button" class="lock-btn" id="lockBtn">Bloquear</button>
+      </div>
+
+      <h2>Panel de Enlaces HTML</h2>
+      <p class="hint">
+        Versión HTML estática compatible con GitHub Pages. Genera enlaces y administra tu lista guardada en este navegador.
+      </p>
+
+      <form id="createLinkForm">
+        <label for="nombreLink">Nombre base del enlace</label>
+        <input type="text" id="nombreLink" value="tubanco tu futuro" placeholder="Ej: tubanco tu futuro">
+
+        <label for="urlDestino">URL destino o de referencia (opcional)</label>
+        <input type="url" id="urlDestino" placeholder="https://ejemplo.com">
+
+        <div class="check-row">
+          <input type="checkbox" id="activarClave">
+          <label for="activarClave" style="margin:0; font-weight:600; color:#f8fafc;">Asignar clave de referencia</label>
+        </div>
+
+        <div id="claveWrap" style="display:none;">
+          <label for="claveLink">Clave del enlace</label>
+          <input type="text" id="claveLink" placeholder="Escribe una clave">
+        </div>
+
+        <label for="archivosInput">Archivos HTML / logo (opcional, para registrar nombres)</label>
+        <input type="file" id="archivosInput" multiple>
+
+        <button type="submit" class="btn-gold">Generar enlace</button>
+      </form>
+
+      <div class="err" id="errBox"></div>
+      <div class="msg-ok" id="okMsgBox"></div>
+
+      <div class="ok" id="resultBox">
+        <strong style="color:#fff3b0;">Enlace generado:</strong>
+        <input type="text" id="generatedUrlInput" readonly>
+        <div class="row-actions">
+          <button type="button" class="btn-copy" id="copyBtn">Copiar enlace</button>
+          <a href="#" target="_blank" rel="noopener noreferrer" class="open-btn" id="openLinkBtn">Abrir enlace</a>
+        </div>
+      </div>
+
+      <div class="manage-box">
+        <div class="manage-title">Enlaces guardados</div>
+        <div id="linksList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Cambia esta contraseña por la que quieras usar
+    const ACCESS_PASSWORD = 'admin123';
+    const AUTH_KEY = 'vip_link_studio_auth_v1';
+    const STORAGE_KEY = 'vip_link_studio_html_items_v1';
+
+    const loginView = document.getElementById('loginView');
+    const panelContent = document.getElementById('panelContent');
+    const loginForm = document.getElementById('loginForm');
+    const passInput = document.getElementById('passInput');
+    const loginErr = document.getElementById('loginErr');
+    const lockBtn = document.getElementById('lockBtn');
+
+    function aplicarEstadoAuth() {
+      const autorizado = sessionStorage.getItem(AUTH_KEY) === '1';
+      if (autorizado) {
+        loginView.style.display = 'none';
+        panelContent.style.display = 'block';
+        loginErr.style.display = 'none';
+      } else {
+        loginView.style.display = 'block';
+        panelContent.style.display = 'none';
+      }
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (passInput.value === ACCESS_PASSWORD) {
+        sessionStorage.setItem(AUTH_KEY, '1');
+        passInput.value = '';
+        aplicarEstadoAuth();
+      } else {
+        loginErr.style.display = 'block';
+        passInput.value = '';
+        passInput.focus();
+      }
+    });
+
+    lockBtn.addEventListener('click', () => {
+      sessionStorage.removeItem(AUTH_KEY);
+      aplicarEstadoAuth();
+    });
+
+    aplicarEstadoAuth();
+
+    const form = document.getElementById('createLinkForm');
+    const nombreInput = document.getElementById('nombreLink');
+    const destinoInput = document.getElementById('urlDestino');
+    const activarClaveChk = document.getElementById('activarClave');
+    const claveWrap = document.getElementById('claveWrap');
+    const claveInput = document.getElementById('claveLink');
+    const archivosInput = document.getElementById('archivosInput');
+    const errBox = document.getElementById('errBox');
+    const okMsgBox = document.getElementById('okMsgBox');
+    const resultBox = document.getElementById('resultBox');
+    const generatedUrlInput = document.getElementById('generatedUrlInput');
+    const copyBtn = document.getElementById('copyBtn');
+    const openLinkBtn = document.getElementById('openLinkBtn');
+    const linksList = document.getElementById('linksList');
+
+    activarClaveChk.addEventListener('change', () => {
+      claveWrap.style.display = activarClaveChk.checked ? 'block' : 'none';
+    });
+
+    function crearSlug(texto) {
+      const limpio = (texto || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 50);
+      return limpio || 'tubanco-tu-futuro';
+    }
+
+    function cargarItems() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = JSON.parse(raw || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function guardarItems(items) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function mostrarError(msg) {
+      errBox.textContent = msg;
+      errBox.style.display = 'block';
+      okMsgBox.style.display = 'none';
+    }
+
+    function mostrarExito(msg) {
+      okMsgBox.textContent = msg;
+      okMsgBox.style.display = 'block';
+      errBox.style.display = 'none';
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderLista() {
+      const items = cargarItems();
+      if (!items.length) {
+        linksList.innerHTML = '<p class="hint" style="margin:0;">Aún no hay enlaces guardados aquí.</p>';
+        return;
+      }
+
+      linksList.innerHTML = items.map((item) => {
+        const estadoPill = item.bloqueado
+          ? '<span class="pill pill-ban">Pausado</span>'
+          : (item.clave ? '<span class="pill pill-lock">Con clave</span>' : '<span class="pill pill-open">Activo</span>');
+
+        const archivosTxt = item.archivos && item.archivos.length
+          ? 'Archivos: ' + item.archivos.join(', ')
+          : 'Sin archivos adjuntos';
+
+        const claveTxt = item.clave ? 'Clave: ' + item.clave : 'Sin clave';
+
+        return `
+          <div class="link-card" data-id="${escapeHtml(item.id)}">
+            <div class="link-head">
+              <span>${escapeHtml(item.slug)}</span>
+              ${estadoPill}
+            </div>
+            <div class="link-url">${escapeHtml(item.url)}</div>
+            <div class="link-meta">${escapeHtml(claveTxt)} · ${escapeHtml(archivosTxt)}</div>
+            <div class="ctrl-row">
+              <input type="text" class="ctrl-input clave-edit" value="${escapeHtml(item.clave || '')}" placeholder="Nueva clave (vacío = quitar)">
+              <button type="button" class="btn-sm btn-save-key">Guardar clave</button>
+              <button type="button" class="btn-sm btn-toggle">${item.bloqueado ? 'Activar' : 'Pausar'}</button>
+              <button type="button" class="btn-sm btn-del">Borrar</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const slug = crearSlug(nombreInput.value);
+      const token = Math.random().toString(36).slice(2, 8);
+      const id = `${slug}-${token}`;
+      const baseActual = window.location.href.split('#')[0].split('?')[0];
+      const destinoLimpio = destinoInput.value.trim();
+      const urlGenerada = destinoLimpio || `${baseActual}#link=${encodeURIComponent(id)}`;
+      const claveVal = activarClaveChk.checked ? claveInput.value.trim() : '';
+      const nombresArchivos = Array.from(archivosInput.files || []).map((f) => f.name);
+
+      const items = cargarItems();
+      items.unshift({
+        id,
+        slug,
+        url: urlGenerada,
+        clave: claveVal,
+        bloqueado: false,
+        archivos: nombresArchivos,
+        creado: new Date().toLocaleString()
+      });
+
+      guardarItems(items);
+      renderLista();
+
+      generatedUrlInput.value = urlGenerada;
+      openLinkBtn.href = urlGenerada;
+      resultBox.style.display = 'block';
+      mostrarExito(`Enlace "${id}" creado y guardado.`);
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      if (!generatedUrlInput.value) return;
+      try {
+        await navigator.clipboard.writeText(generatedUrlInput.value);
+        mostrarExito('Enlace copiado al portapapeles.');
+      } catch (_) {
+        generatedUrlInput.select();
+        document.execCommand('copy');
+        mostrarExito('Enlace seleccionado para copiar.');
+      }
+    });
+
+    linksList.addEventListener('click', (e) => {
+      const card = e.target.closest('.link-card');
+      if (!card) return;
+      const id = card.getAttribute('data-id');
+      const items = cargarItems();
+      const idx = items.findIndex((x) => x.id === id);
+      if (idx === -1) return;
+
+      if (e.target.classList.contains('btn-save-key')) {
+        const nuevaClave = card.querySelector('.clave-edit').value.trim();
+        items[idx].clave = nuevaClave;
+        guardarItems(items);
+        renderLista();
+        mostrarExito(nuevaClave ? `Clave actualizada para "${id}".` : `Clave quitada de "${id}".`);
+      } else if (e.target.classList.contains('btn-toggle')) {
+        items[idx].bloqueado = !items[idx].bloqueado;
+        guardarItems(items);
+        renderLista();
+        mostrarExito(items[idx].bloqueado ? `Enlace "${id}" pausado.` : `Enlace "${id}" activado.`);
+      } else if (e.target.classList.contains('btn-del')) {
+        items.splice(idx, 1);
+        guardarItems(items);
+        renderLista();
+        mostrarExito(`Enlace "${id}" eliminado.`);
+      }
+    });
+
+    renderLista();
+  </script>
+</body>
+</html>
