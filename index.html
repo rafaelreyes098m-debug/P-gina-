@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIP Link Studio — HTML</title>
+  <style>
+    :root {
+      --gold-1: #fff3b0;
+      --gold-2: #f5c84c;
+      --gold-3: #b88218;
+      --bg-dark: #07090f;
+      --card-bg: rgba(16, 20, 32, 0.92);
+      --border: rgba(245, 200, 76, 0.35);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, Arial, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 20% 15%, rgba(245, 200, 76, 0.16), transparent 45%), var(--bg-dark);
+      color: var(--text);
+      padding: 16px;
+    }
+    .box {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      color: var(--gold-1);
+    }
+    p.hint {
+      margin: 0 0 16px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-1);
+      margin-bottom: 6px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 11px 12px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(245, 200, 76, 0.3);
+      background: #070a12;
+      color: #fff;
+      font-size: 14px;
+    }
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: 1px dashed rgba(245, 200, 76, 0.45);
+      background: #070a12;
+      color: #e2e8f0;
+      font-size: 13px;
+    }
+    .row-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-size: 13px;
+    }
+    .btn-gold {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--gold-1), var(--gold-2), var(--gold-3));
+      color: #120e04;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .msg {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      display: none;
+    }
+    .msg.ok { background: rgba(6, 78, 59, 0.8); border: 1px solid #34d399; color: #a7f3d0; display: block; }
+    .msg.err { background: rgba(127, 29, 29, 0.8); border: 1px solid #f87171; color: #fecaca; display: block; }
+    .result {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(245, 200, 76, 0.08);
+      border: 1px solid var(--border);
+      display: none;
+    }
+    .result.show { display: block; }
+    .btns { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-sec {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 0;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+    }
+    .btn-copy { background: #10b981; color: #052e16; }
+    .btn-open { background: #3b82f6; color: #fff; }
+    .list { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px; }
+    .item {
+      background: #070a12;
+      border: 1px solid rgba(245, 200, 76, 0.22);
+      border-radius: 12px;
+      padding: 11px;
+      margin-bottom: 10px;
+    }
+    .item-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; }
+    .item-url { font-size: 12px; color: #93c5fd; word-break: break-all; margin: 6px 0; }
+    .item-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .mini { padding: 6px 10px; border-radius: 8px; border: 0; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .mini-view { background: #2563eb; color: #fff; }
+    .mini-del { background: #dc2626; color: #fff; }
+    #viewerBox { display: none; width: 100%; max-width: 960px; }
+    #viewerFrame {
+      width: 100%;
+      height: 78vh;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Vista cuando abres un enlace generado (#view=ID) -->
+  <div id="viewerBox" class="box">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
+      <strong id="viewerTitle" style="color:var(--gold-1);">Archivo</strong>
+      <a id="backToPanelBtn" href="#" class="mini mini-view" style="text-decoration:none;">Volver al panel</a>
+    </div>
+    <div id="viewerLockForm" style="display:none;">
+      <label for="unlockInput">Este enlace tiene clave</label>
+      <input type="password" id="unlockInput" placeholder="Escribe la clave" />
+      <button type="button" id="unlockBtn" class="btn-gold">Abrir archivo</button>
+      <div id="unlockErr" class="msg"></div>
+    </div>
+    <iframe id="viewerFrame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+  </div>
+
+  <!-- Login del panel -->
+  <div id="loginBox" class="box">
+    <h2>Acceso al Panel</h2>
+    <p class="hint">Escribe la clave del panel (por defecto: <strong>admin123</strong>).</p>
+    <form id="loginForm">
+      <label for="panelPass">Clave</label>
+      <input type="password" id="panelPass" placeholder="admin123" required />
+      <button type="submit" class="btn-gold">Entrar</button>
+    </form>
+    <div id="loginMsg" class="msg"></div>
+  </div>
+
+  <!-- Panel principal -->
+  <div id="panelBox" class="box" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span style="font-size:11px; font-weight:800; color:var(--gold-1); letter-spacing:1px;">VIP LINK STUDIO</span>
+      <button type="button" id="lockPanelBtn" class="mini mini-del">Bloquear</button>
+    </div>
+    <h2>Subir HTML y Generar Enlace</h2>
+    <p class="hint">Sube tu archivo HTML (y/o imagen). Al generar el enlace, el botón de abrir o el enlace carga el archivo aquí mismo.</p>
+
+    <form id="uploadForm">
+      <label for="linkName">Nombre del enlace</label>
+      <input type="text" id="linkName" value="tubanco-tu-futuro" required />
+
+      <label for="fileInput">Archivo HTML / Imagen</label>
+      <input type="file" id="fileInput" accept=".html,.htm,.txt,image/*" multiple required />
+
+      <div class="row-check">
+        <input type="checkbox" id="useKey" />
+        <label for="useKey" style="margin:0; font-weight:600; color:#fff;">Proteger con clave</label>
+      </div>
+
+      <div id="keyWrap" style="display:none;">
+        <label for="linkKey">Clave del enlace</label>
+        <input type="text" id="linkKey" placeholder="Escribe la clave" />
+      </div>
+
+      <button type="submit" class="btn-gold">Generar Enlace</button>
+    </form>
+
+    <div id="panelMsg" class="msg"></div>
+
+    <div id="resultBox" class="result">
+      <label for="outUrl">Tu enlace generado:</label>
+      <input type="text" id="outUrl" readonly style="margin-bottom:6px;" />
+      <div class="btns">
+        <button type="button" id="copyBtn" class="btn-sec btn-copy">Copiar</button>
+        <a id="openGeneratedA" href="#" class="btn-sec btn-open">Abrir enlace</a>
+      </div>
+    </div>
+
+    <div class="list">
+      <label>Enlaces creados en este navegador</label>
+      <div id="itemsList"></div>
+    </div>
+  </div>
+
+  <script>
+    const PANEL_PASS = 'admin123';
+    const AUTH_KEY = 'vip_panel_auth_ok';
+    const DB_KEY = 'vip_links_html_db_v1';
+
+    const viewerBox = document.getElementById('viewerBox');
+    const loginBox = document.getElementById('loginBox');
+    const panelBox = document.getElementById('panelBox');
+    const viewerFrame = document.getElementById('viewerFrame');
+    const viewerTitle = document.getElementById('viewerTitle');
+    const viewerLockForm = document.getElementById('viewerLockForm');
+    const unlockInput = document.getElementById('unlockInput');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const unlockErr = document.getElementById('unlockErr');
+    const backToPanelBtn = document.getElementById('backToPanelBtn');
+
+    function getDb() {
+      try {
+        const d = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+        return d && typeof d === 'object' ? d : {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function saveDb(d) {
+      localStorage.setItem(DB_KEY, JSON.stringify(d));
+    }
+
+    function setMsg(el, text, isErr = false) {
+      el.textContent = text;
+      el.className = 'msg ' + (isErr ? 'err' : 'ok');
+    }
+
+    function getViewIdFromHash() {
+      const h = window.location.hash || '';
+      const m = h.match(/^#view=(.+)$/);
+      return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    function buildHtmlDocument(item) {
+      let html = item.htmlContent || '';
+      if (!html && item.imgData) {
+        html = `<!DOCTYPE html><html><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#07090f;"><img src="${item.imgData}" style="max-width:100%;max-height:100vh;" /></body></html>`;
+      }
+      if (html && item.imgData) {
+        html = html.replace(
+          /(src=["'])(?:\.\/|\/|images\/|img\/|assets\/)?[^"']+\.(?:jpg|jpeg|png|gif|webp|svg|ico|avif)(["'])/gi,
+          `$1${item.imgData}$2`
+        );
+      }
+      return html || '<!DOCTYPE html><html><body><p>Archivo vacío</p></body></html>';
+    }
+
+    function renderFrame(item) {
+      viewerLockForm.style.display = 'none';
+      viewerFrame.style.display = 'block';
+      viewerFrame.srcdoc = buildHtmlDocument(item);
+    }
+
+    function handleRoute() {
+      const viewId = getViewIdFromHash();
+      if (viewId) {
+        loginBox.style.display = 'none';
+        panelBox.style.display = 'none';
+        viewerBox.style.display = 'block';
+
+        const db = getDb();
+        const item = db[viewId];
+        if (!item) {
+          viewerTitle.textContent = 'Enlace no encontrado';
+          viewerLockForm.style.display = 'none';
+          viewerFrame.style.display = 'block';
+          viewerFrame.srcdoc = '<!DOCTYPE html><html><body style="font-family:sans-serif;padding:24px;"><h3>Este enlace no existe en este navegador.</h3><p>Si lo creaste antes o lo abres en otro dispositivo, recuerda que este panel HTML guarda los archivos localmente en el navegador.</p></body></html>';
+          return;
+        }
+
+        viewerTitle.textContent = item.fileName || item.id;
+        if (item.key) {
+          viewerFrame.style.display = 'none';
+          viewerLockForm.style.display = 'block';
+          unlockInput.value = '';
+          unlockErr.className = 'msg';
+          unlockBtn.onclick = () => {
+            if (unlockInput.value === item.key) {
+              renderFrame(item);
+            } else {
+              setMsg(unlockErr, 'Clave incorrecta.', true);
+            }
+          };
+        } else {
+          renderFrame(item);
+        }
+        return;
+      }
+
+      viewerBox.style.display = 'none';
+      const logged = sessionStorage.getItem(AUTH_KEY) === '1';
+      if (logged) {
+        loginBox.style.display = 'none';
+        panelBox.style.display = 'block';
+        renderList();
+      } else {
+        panelBox.style.display = 'none';
+        loginBox.style.display = 'block';
+      }
+    }
+
+    backToPanelBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.hash = '';
+      handleRoute();
+    });
+
+    window.addEventListener('hashchange', handleRoute);
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pass = document.getElementById('panelPass').value;
+      if (pass === PANEL_PASS) {
+        sessionStorage.setItem(AUTH_KEY, '1');
+        handleRoute();
+      } else {
+        setMsg(document.getElementById('loginMsg'), 'Clave incorrecta.', true);
+      }
+    });
+
+    document.getElementById('lockPanelBtn').addEventListener('click', () => {
+      sessionStorage.removeItem(AUTH_KEY);
+      handleRoute();
+    });
+
+    const useKey = document.getElementById('useKey');
+    const keyWrap = document.getElementById('keyWrap');
+    useKey.addEventListener('change', () => {
+      keyWrap.style.display = useKey.checked ? 'block' : 'none';
+    });
+
+    function readText(file) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(String(r.result || ''));
+        r.onerror = rej;
+        r.readAsText(file, 'UTF-8');
+      });
+    }
+
+    function readDataUrl(file) {
+      return new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(String(r.result || ''));
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+    }
+
+    function slugify(s) {
+      const clean = (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+      return clean || 'enlace';
+    }
+
+    function renderList() {
+      const container = document.getElementById('itemsList');
+      const db = getDb();
+      const keys = Object.keys(db).reverse();
+      if (!keys.length) {
+        container.innerHTML = '<p class="hint" style="margin:0;">Aún no has creado enlaces.</p>';
+        return;
+      }
+      container.innerHTML = keys.map((id) => {
+        const it = db[id];
+        return `
+          <div class="item">
+            <div class="item-top">
+              <span>${it.fileName}</span>
+              <span style="color:var(--gold-1);">${it.key ? 'Con clave' : 'Libre'}</span>
+            </div>
+            <div class="item-url">${it.url}</div>
+            <div class="item-btns">
+              <a href="${it.url}" class="mini mini-view" style="text-decoration:none;">Abrir</a>
+              <button type="button" class="mini mini-del" onclick="deleteItem('${id.replace(/'/g, "\\'")}')">Borrar</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.deleteItem = function(id) {
+      const db = getDb();
+      delete db[id];
+      saveDb(db);
+      renderList();
+    };
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msgEl = document.getElementById('panelMsg');
+      const files = Array.from(document.getElementById('fileInput').files || []);
+      if (!files.length) {
+        return setMsg(msgEl, 'Selecciona un archivo.', true);
+      }
+
+      let htmlFile = null;
+      let imgFile = null;
+      for (const f of files) {
+        const n = f.name.toLowerCase();
+        if (!htmlFile && (n.endsWith('.html') || n.endsWith('.htm') || n.endsWith('.txt'))) htmlFile = f;
+        else if (!imgFile && f.type.startsWith('image/')) imgFile = f;
+      }
+      if (!htmlFile && !imgFile) htmlFile = files[0];
+
+      try {
+        const htmlContent = htmlFile ? await readText(htmlFile) : '';
+        const imgData = imgFile ? await readDataUrl(imgFile) : '';
+        const id = `${slugify(document.getElementById('linkName').value)}-${Math.random().toString(36).slice(2, 7)}`;
+        const base = window.location.href.split('#')[0].split('?')[0];
+        const url = `${base}#view=${encodeURIComponent(id)}`;
+        const key = useKey.checked ? document.getElementById('linkKey').value.trim() : '';
+
+        const db = getDb();
+        db[id] = {
+          id,
+          url,
+          key,
+          fileName: (htmlFile && htmlFile.name) || (imgFile && imgFile.name) || 'archivo',
+          htmlContent,
+          imgData
+        };
+        saveDb(db);
+
+        document.getElementById('outUrl').value = url;
+        document.getElementById('openGeneratedA').href = url;
+        document.getElementById('resultBox').classList.add('show');
+        renderList();
+        setMsg(msgEl, 'Listo: enlace generado y archivo guardado.');
+      } catch (_) {
+        setMsg(msgEl, 'Error leyendo el archivo (puede ser muy pesado para el navegador).', true);
+      }
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      const val = document.getElementById('outUrl').value;
+      if (!val) return;
+      try {
+        await navigator.clipboard.writeText(val);
+        setMsg(document.getElementById('panelMsg'), 'Enlace copiado.');
+      } catch (_) {
+        document.getElementById('outUrl').select();
+        document.execCommand('copy');
+        setMsg(document.getElementById('panelMsg'), 'Enlace copiado.');
+      }
+    });
+
+    handleRoute();
+  </script>
+</body>
+</html>
